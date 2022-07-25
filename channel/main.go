@@ -3,14 +3,25 @@ package main
 import (
 	"fmt"
 	"sync"
+	"time"
 )
 
 var wg sync.WaitGroup
 
 func consumer(ch chan int) {
 	defer wg.Done()
-	data := <-ch
-	fmt.Println(data)
+	//for data := range ch {
+	//	fmt.Println(data)
+	//	time.Sleep(time.Second)
+	//}
+	for {
+		data, ok := <-ch
+		fmt.Println(data, ok)
+		time.Sleep(time.Second)
+		if !ok {
+			break
+		}
+	}
 }
 
 func main() {
@@ -20,5 +31,6 @@ func main() {
 	wg.Add(1)
 	go consumer(msg)
 	msg <- 2
+	close(msg)
 	wg.Wait()
 }
